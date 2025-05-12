@@ -4,8 +4,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { Circle, Marker, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 
-const MyCurrentLocationMarker = () => {
-    const [myCoord, setMyCoord] = useState<any>(null)
+const MyCurrentLocationMarker = ({myCoord}: {myCoord: [number, number] | null}) => {
     const map = useMap();
     const {data: session} = useSession()
 
@@ -14,20 +13,6 @@ const MyCurrentLocationMarker = () => {
           map.flyTo(myCoord, 15); // Zoom level 13
         }
       }, [map, myCoord]);
-    
-      // Get the user's current location
-      useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setMyCoord([latitude, longitude]);
-            // console.log(position.coords)
-          },
-          (error) => {
-            console.error(error);
-          }
-        );
-      }, []);
     
     // const map = useMapEvents({
     //     click() {

@@ -1,48 +1,52 @@
-"use client"
+'use client';
 
-import DeviceCard from '@/components/cards/DeviceCard'
-import { MydevicesTable } from '@/components/tables/DevicesTable'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Device } from '@/types/Device'
-import { useSession } from 'next-auth/react'
-import Link from 'next/link'
-import React, { useState } from 'react'
-import useSWR from 'swr'
+import DeviceCard from '@/components/cards/DeviceCard';
+import { Device } from '@/types/Device';
+import { useSession } from 'next-auth/react';
+import useSWR from 'swr';
 
 const DevicesPage = () => {
-  const session = useSession()
-  const userId = session.data?.user.id
-  const {data, isLoading} = useSWR(userId? "get-devices" :  null, GetDevices)
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
-  async function GetDevices(){
+  const { data, isLoading, error } = useSWR(userId ? 'get-devices' : null, GetDevices);
+
+  async function GetDevices() {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/device?userId=${userId}`)
-
-      const data = await response.json()
-      console.log(data)
-
-      return data
-    } catch (error) {
-      console.log(error)
-      return null
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/device?userId=${userId}`);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error('Device fetch error:', err);
+      return null;
     }
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-2 p-4 pt-6">
-      <h1 className="text-2xl font-bold">Devices</h1>
-      {/* <MydevicesTable /> */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 grid-cols-1">
-      {data?.map((dev: Device) => (
-        <DeviceCard
-          key={dev.id}
-          device={dev}
-        />
-      ))}
-    </div>
-    </div>
-  )
-}
+    <div className="flex flex-col gap-6 px-4 md:px-8 py-6">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+          My Devices
+        </h1>
+        {/* Future action button placeholder */}
+        {/* <Button>Add New</Button> */}
+      </div>
 
-export default DevicesPage
+      {isLoading ? (
+        <div className="text-center text-muted-foreground">Loading devices...</div>
+      ) : error || !data ? (
+        <div className="text-center text-red-500">Failed to load devices. Please try again.</div>
+      ) : data.length === 0 ? (
+        <div className="text-center text-gray-600 dark:text-gray-400">No devices found.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          {data.map((dev: Device) => (
+            <DeviceCard key={dev.id} device={dev} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DevicesPage;

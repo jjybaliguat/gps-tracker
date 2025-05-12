@@ -1,6 +1,7 @@
 export interface Device {
     id: string,
     name: string,
+    deviceId: string,
     gpsTopic: string,
     emergencyTopic: string,
     battLevelTopic: string,
