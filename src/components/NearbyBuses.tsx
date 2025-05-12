@@ -66,8 +66,7 @@ const NearbyBuses = () => {
     try {
       const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lon}`);
       const data = await response.json()
-      console.log(data)
-      return data ?? "Unknown location";
+      return data?.display_name ?? "Unknown location";
     } catch (error) {
       console.error("Geocoding failed:", error);
       return "Error fetching location";
