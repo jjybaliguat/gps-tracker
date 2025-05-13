@@ -98,8 +98,6 @@ model MiniBus {
   device        Device?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  Alert Alert[]
 }
 
 model Device {
@@ -115,9 +113,11 @@ model Device {
   busId       String? @db.ObjectId @unique
   assignedBus MiniBus? @relation(fields: [busId], references: [id])
   gpsData     GPSData[]
+  Alert Alert[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
 }
 
 model GPSData {
@@ -172,12 +172,13 @@ model Route {
 
 model Alert {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
-  busId       String @db.ObjectId
-  bus         MiniBus  @relation(fields: [busId], references: [id])
+  devId       String
+  device      Device  @relation(fields: [devId], references: [deviceId])
   type        AlertType
-  lat         String?
-  long        String?
+  lat         Float?
+  lon         Float?
   message     String
+  speed       Float?
   timestamp   DateTime @default(now())
 }
 

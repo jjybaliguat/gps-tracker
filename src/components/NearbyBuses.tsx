@@ -212,22 +212,25 @@ const NearbyBuses = () => {
                 <span className="text-xs text-gray-500 dark:text-gray-400">{bus?.assignedBus?.plateNumber}</span>
               </div>
 
-              <span>
-                <span className="font-medium truncate">Location: {bus.locationText}</span>
-              </span>
-              <div className="mt-1 grid grid-cols-2 gap-1 text-xs text-gray-600 dark:text-gray-400">
-                <span>
-                  <span className="font-medium">Speed:</span> {bus.speed} km/h
-                </span>
+              <div className="w-full max-w-lg text-xs">
+                <div className="break-words overflow-hidden">
+                  <span className="font-semibold">Location: </span>
+                  {bus.locationText}
+                </div>
+              </div>
+              <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
+                <span className="font-semibold">Speed:</span> {bus.speed} km/h
+              </div>
+              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                 {bus.speed < 2 ? (
-                  <span className="col-span-2">
-                    <span className="font-medium">Status:</span>{' '}
-                    <span className="text-red-600 font-medium">Stopped</span>
+                  <span className="">
+                    <span className="font-semibold">Status:</span>{' '}
+                    <span className="text-red-600 font-semibold">Stopped</span>
                     <span className="ml-2">| ETA: Not moving</span>
                   </span>
                 ) : (
-                  <span className="col-span-2">
-                    <span className="font-medium">ETA:</span>{' '}
+                  <span className="">
+                    <span className="font-semibold">ETA:</span>{' '}
                     {bus.eta !== null ? (
                       <span className="text-green-600 font-semibold">{bus.eta} min</span>
                     ) : (
@@ -238,7 +241,7 @@ const NearbyBuses = () => {
 
                 {bus.direction && bus.speed > 2 && (
                   <span className="col-span-2">
-                    <span className="font-medium">Direction:</span>{' '}
+                    <span className="font-semibold">Direction:</span>{' '}
                     <span
                       className={
                         bus.direction === "Approaching"
