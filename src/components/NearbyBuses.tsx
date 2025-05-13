@@ -32,10 +32,11 @@ const NearbyBuses = () => {
   const timeouts = new Map<string, NodeJS.Timeout>();
   const lastLocationFetchRef = useRef<Map<string, number>>(new Map());
   const FETCH_INTERVAL_MS = 30_000; // 30 seconds
-  const DISTANCE_TREND_THRESHOLD = 0.03; // 30 meters
-  const lastDistances = new Map<string, number>();
+  const lastDistancesSeries = new Map<string, number[]>(); // stores last few distances
   const lastDirectionCheckTimestamps = new Map<string, number>();
-  const DIRECTION_CHECK_INTERVAL_MS = 3000;
+  const DIRECTION_CHECK_INTERVAL_MS = 3000; // 3 seconds
+  const MAX_HISTORY = 5; // Keep last 5 distance records
+  const DISTANCE_TREND_THRESHOLD = 0.01; // Minimum change in km (10 meters)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -133,23 +134,24 @@ const NearbyBuses = () => {
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
-                const now = Date.now();
                 const lastCheck = lastDirectionCheckTimestamps.get(device.id) || 0;
 
                 if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
-                  const last = lastDistances.get(device.id);
+                  const series = lastDistancesSeries.get(device.id) || [];
+                  series.push(currentDistance);
+                  if (series.length > MAX_HISTORY) series.shift(); // keep last 5
 
-                  if (last !== undefined) {
-                    const delta = last - currentDistance;
+                  lastDistancesSeries.set(device.id, series);
 
-                    if (Math.abs(delta) > DISTANCE_TREND_THRESHOLD) {
-                      direction = delta > 0 ? "Approaching" : "Moving away";
-                    } else {
-                      direction = null;
-                    }
+                  if (series.length === MAX_HISTORY) {
+                    const diffs = series.slice(1).map((v, i) => v - series[i]);
+                    const allDecreasing = diffs.every((d) => d < -DISTANCE_TREND_THRESHOLD);
+                    const allIncreasing = diffs.every((d) => d > DISTANCE_TREND_THRESHOLD);
+
+                    if (allDecreasing) direction = "Approaching";
+                    else if (allIncreasing) direction = "Moving away";
                   }
 
-                  lastDistances.set(device.id, currentDistance);
                   lastDirectionCheckTimestamps.set(device.id, now);
                 }
               }
@@ -180,8 +182,8 @@ const NearbyBuses = () => {
 
                 if (userLocation) {
                   updated.sort((a, b) => {
-                    const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, a.lat, a.lon);
-                    const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, b.lat, b.lon);
+                    const distA = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, a.lat, a.lon);
+                    const distB = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, b.lat, b.lon);
                     return distA - distB;
                   });
                 }
