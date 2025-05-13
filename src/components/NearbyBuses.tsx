@@ -30,9 +30,12 @@ const NearbyBuses = () => {
   const [nearbyBuses, setNearbyBuses] = useState<NearbyBusesProps[] | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
   const timeouts = new Map<string, NodeJS.Timeout>();
-  const lastDistances = new Map<string, number>();
   const lastLocationFetchRef = useRef<Map<string, number>>(new Map());
   const FETCH_INTERVAL_MS = 30_000; // 30 seconds
+  const DISTANCE_TREND_THRESHOLD = 0.03; // 30 meters
+  const lastDistances = new Map<string, number>();
+  const lastDirectionCheckTimestamps = new Map<string, number>();
+  const DIRECTION_CHECK_INTERVAL_MS = 3000;
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -108,7 +111,6 @@ const NearbyBuses = () => {
               let locationText: string | null = null;
 
               if (now - lastFetched > FETCH_INTERVAL_MS) {
-                // Update timestamp
                 lastLocationFetchRef.current.set(device.id, now);
                 locationText = await fetchLocationText(data.lat, data.lon);
               }
@@ -131,15 +133,29 @@ const NearbyBuses = () => {
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
-                const last = lastDistances.get(device.id);
-                if (last !== undefined) {
-                  direction = currentDistance < last ? "Approaching" : "Moving away";
+                const now = Date.now();
+                const lastCheck = lastDirectionCheckTimestamps.get(device.id) || 0;
+
+                if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
+                  const last = lastDistances.get(device.id);
+
+                  if (last !== undefined) {
+                    const delta = last - currentDistance;
+
+                    if (Math.abs(delta) > DISTANCE_TREND_THRESHOLD) {
+                      direction = delta > 0 ? "Approaching" : "Moving away";
+                    } else {
+                      direction = null;
+                    }
+                  }
+
+                  lastDistances.set(device.id, currentDistance);
+                  lastDirectionCheckTimestamps.set(device.id, now);
                 }
-                lastDistances.set(device.id, currentDistance);
               }
 
               let eta: number | undefined;
-              if (userLocation && data.speed && data.speed > 1 && currentDistance !== null) {
+              if (userLocation && data.speed && data.speed > 2 && currentDistance !== null) {
                 const speedInKmPerMin = data.speed / 60;
                 eta = speedInKmPerMin > 0 ? +(currentDistance / speedInKmPerMin).toFixed(2) : undefined;
               }
@@ -164,8 +180,8 @@ const NearbyBuses = () => {
 
                 if (userLocation) {
                   updated.sort((a, b) => {
-                    const distA = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, a.lat, a.lon);
-                    const distB = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, b.lat, b.lon);
+                    const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, a.lat, a.lon);
+                    const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, b.lat, b.lon);
                     return distA - distB;
                   });
                 }
