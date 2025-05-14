@@ -3,21 +3,41 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient()
 
-export async function GET(req: Request){
-    try {
-        const buses = await prisma.miniBus.findMany({
-            include: {
-                device: {
-                    include: {
-                        gpsData: true
-                    }
-                }
-            }
-        })
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '50')
+  const skip = (page - 1) * limit
 
-        return NextResponse.json(buses, {status: 200})
-    } catch (error) {
-        console.log(error)
-        return NextResponse.json({message: "Internal Server Error"}, {status: 500})
-    }
+  try {
+    const buses = await prisma.miniBus.findMany({
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        plateNumber: true,
+        driver: true,
+        device: {
+          select: {
+            id: true,
+            accelTopic: true,
+            gpsData: {
+              orderBy: { timestamp: 'desc' },
+              take: 1, // Only fetch latest GPS data
+              select: {
+                lat: true,
+                lon: true,
+                timestamp: true,
+              }
+            }
+          }
+        }
+      }
+    })
+
+    return NextResponse.json({ buses }, { status: 200 })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+  }
 }

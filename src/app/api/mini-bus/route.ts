@@ -17,11 +17,7 @@ export async function GET(req: Request){
                 ownerId
             },
             include: {
-                device: {
-                    include: {
-                        gpsData: true
-                    }
-                }
+                device: true
             }
         })
 
