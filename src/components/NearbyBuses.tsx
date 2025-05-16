@@ -11,6 +11,7 @@ import { reverseGeocode } from '@/utils/reverseGeocode';
 interface NearbyBusesProps {
   id: string,
   name: string,
+  deviceId: string,
   assignedBus: {
     plateNumber: string,
     driver: string,
@@ -21,7 +22,8 @@ interface NearbyBusesProps {
   lat: number,
   lon: number,
   eta?: number,
-  locationText?: string | null
+  locationText?: string | null,
+  passengerCount?: number,
   direction?: "Approaching" | "Moving away" | null
 }
 
@@ -79,6 +81,7 @@ const NearbyBuses = () => {
 
   useEffect(() => {
     const client = mqtt.connect(process.env.NEXT_PUBLIC_MQTT_BROKER_URL || '', {
+      clientId: 'nextjs-mqtt-client',
       username: process.env.NEXT_PUBLIC_MQTT_USER,
       password: process.env.NEXT_PUBLIC_MQTT_PASS,
       reconnectPeriod: 1000,
@@ -95,6 +98,13 @@ const NearbyBuses = () => {
             console.error("Subscription error:", err);
           }
         });
+        client.subscribe(device.passengerCountTopic, (err) => {
+          if (!err) {
+            console.log(`Subscribed to ${device.passengerCountTopic}`);
+          } else {
+            console.error("Subscription error:", err);
+          }
+        });
       });
     });
 
@@ -102,6 +112,25 @@ const NearbyBuses = () => {
       const msg = payload?.toString();
 
       devices?.forEach(async (device: Device) => {
+        // Handle passenger count topic
+        if (topic === device.passengerCountTopic) {
+          try {
+            const data = JSON.parse(msg);
+            console.log(data)
+
+            setNearbyBuses((prevBuses: any) =>
+              prevBuses?.map((bus: NearbyBusesProps) =>
+                bus.deviceId === data.devId
+                  ? { ...bus, passengerCount: data.count }
+                  : bus
+              )
+            );
+          } catch (e) {
+            console.error("Invalid passenger count JSON:", msg);
+          }
+        }
+
+        // Handle GPS topic
         if (topic === device.gpsTopic) {
           try {
             const data = JSON.parse(msg);
@@ -116,6 +145,7 @@ const NearbyBuses = () => {
                 locationText = await fetchLocationText(data.lat, data.lon);
               }
 
+              // Set timeout to remove offline bus
               if (timeouts.has(device.id)) {
                 clearTimeout(timeouts.get(device.id)!);
               }
@@ -127,6 +157,7 @@ const NearbyBuses = () => {
                 }, 3000)
               );
 
+              // Calculate distance and direction
               const currentDistance = userLocation
                 ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, data.lat, data.lon)
                 : null;
@@ -156,6 +187,7 @@ const NearbyBuses = () => {
                 }
               }
 
+              // Calculate ETA
               let eta: number | undefined;
               if (userLocation && data.speed && data.speed > 2 && currentDistance !== null) {
                 const speedInKmPerMin = data.speed / 60;
@@ -163,12 +195,14 @@ const NearbyBuses = () => {
               }
 
               setNearbyBuses((prev) => {
-                const filtered = (prev ?? []).filter((bus) => bus.id !== device.id);
                 const existing = (prev ?? []).find((bus) => bus.id === device.id);
+                const filtered = (prev ?? []).filter((bus) => bus.id !== device.id);
+
                 const updated = [
                   ...filtered,
                   {
                     id: device.id,
+                    deviceId: device.deviceId,
                     name: device.name,
                     assignedBus: device.assignedBus,
                     lat: data.lat,
@@ -176,14 +210,15 @@ const NearbyBuses = () => {
                     speed: data.speed,
                     eta,
                     direction,
+                    passengerCount: existing?.passengerCount ?? device.passengerCount, // ✅ Preserve existing passengerCount
                     locationText: locationText ?? existing?.locationText ?? "Fetching...",
                   },
                 ];
 
                 if (userLocation) {
                   updated.sort((a, b) => {
-                    const distA = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, a.lat, a.lon);
-                    const distB = getDistanceFromLatLonInKm(userLocation!.lat, userLocation!.lon, b.lat, b.lon);
+                    const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, a.lat, a.lon);
+                    const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, b.lat, b.lon);
                     return distA - distB;
                   });
                 }
@@ -191,10 +226,11 @@ const NearbyBuses = () => {
                 return updated;
               });
             } else {
+              // If invalid GPS data, remove from nearby buses
               setNearbyBuses((prev) => (prev ?? []).filter((bus) => bus.id !== device.id));
             }
           } catch (e) {
-            console.error("Invalid JSON received:", msg);
+            console.error("Invalid GPS JSON received:", msg);
           }
         }
       });
@@ -234,6 +270,14 @@ const NearbyBuses = () => {
                 <div className="break-words overflow-hidden">
                   <span className="font-semibold">Location: </span>
                   {bus.locationText}
+                </div>
+              </div>
+              <div className='grid grid-cols-2 gap-1'>
+                <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
+                  <span className="font-semibold">Capacity:</span> {bus.assignedBus.capacity}
+                </div>
+                <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
+                  <span className="font-semibold">Passenger:</span> {bus.passengerCount}
                 </div>
               </div>
               <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>

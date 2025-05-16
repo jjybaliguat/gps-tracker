@@ -5,7 +5,9 @@ export interface Device {
     gpsTopic: string,
     emergencyTopic: string,
     battLevelTopic: string,
+    passengerCountTopic: string,
     accelTopic: string,
+    passengerCount: number,
     gpsData: {
         lat: number,
         lon: number,
