@@ -8,7 +8,7 @@ const OverviewCard = ({
 }: {
   title: string;
   image: string;
-  total: number;
+  total: number | null;
 }) => {
   return (
     <div className="rounded-2xl bg-muted/50 dark:bg-gray-800 p-5 shadow-sm hover:shadow-md transition-shadow duration-200 group">
@@ -18,7 +18,7 @@ const OverviewCard = ({
             {title}
           </h2>
           <h1 className="text-4xl font-semibold text-gray-800 dark:text-white mt-1">
-            {total.toLocaleString()}
+            {total && total.toLocaleString()}
           </h1>
         </div>
         <div className="relative h-16 w-16">

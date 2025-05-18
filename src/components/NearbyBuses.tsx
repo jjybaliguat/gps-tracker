@@ -7,6 +7,8 @@ import { Device } from '@/types/Device';
 import Image from 'next/image';
 import { getDistanceFromLatLonInKm } from '@/utils/getDistanceFromLatLonInKM';
 import { reverseGeocode } from '@/utils/reverseGeocode';
+import { Button } from './ui/button';
+import { useMap } from 'react-leaflet';
 
 interface NearbyBusesProps {
   id: string,
@@ -27,8 +29,7 @@ interface NearbyBusesProps {
   direction?: "Approaching" | "Moving away" | null
 }
 
-const NearbyBuses = () => {
-  const { data: devices } = useSWR('getDevices', GetDevices)
+const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], mapRef: any, mapContainerRef?: any}) => {
   const [nearbyBuses, setNearbyBuses] = useState<NearbyBusesProps[] | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
   const timeouts = new Map<string, NodeJS.Timeout>();
@@ -55,17 +56,6 @@ const NearbyBuses = () => {
       );
     }
   }, []);
-
-  async function GetDevices() {
-    try {
-      const response = await fetch(`/api/device/get-all`)
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.log(error)
-      return null
-    }
-  }
 
   // Fetch reverse geocoded location
   const fetchLocationText = async (lat: number, lon: number) => {
@@ -241,6 +231,13 @@ const NearbyBuses = () => {
     };
   }, [devices]);
 
+  const handleFly = (lat: number, lon: number) => {
+    if (!mapRef.current) return;
+
+    mapRef.current.flyTo([lat, lon], 18); // 18 = zoom level
+    mapContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -263,13 +260,13 @@ const NearbyBuses = () => {
             <div className="flex flex-col text-sm text-gray-700 dark:text-gray-300 w-full">
               <div className="flex justify-between">
                 <span className="font-semibold">{bus?.name}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{bus?.assignedBus?.plateNumber}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{bus?.assignedBus?.plateNumber} <Button onClick={() => handleFly(bus.lat, bus.lon)} className="py-1 px-2" size="sm">View</Button></span>
               </div>
 
               <div className="w-full max-w-lg text-xs">
                 <div className="break-words overflow-hidden">
                   <span className="font-semibold">Location: </span>
-                  {bus.locationText}
+                  {bus.locationText?.split(",").slice(0, 3)}
                 </div>
               </div>
               <div className='grid grid-cols-2 gap-1'>

@@ -78,12 +78,12 @@ export default function AlertsPage() {
                       </span>
                     </div>
                     <Link
-                      href={`https://www.google.com/maps?q=${alert.lat},${alert.lon}`}
+                      href={alert.message.split(": ")[1]}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-4"
                     >
-                      <Button className="text-xs px-2 py-1 h-auto">
+                      <Button variant="destructive" className="text-xs px-2 py-1 h-auto">
                         View Map
                       </Button>
                     </Link>
@@ -148,7 +148,7 @@ export default function AlertsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button className="text-xs px-2 py-1 h-auto">
+                        <Button className="text-xs px-2 py-1 h-auto bg-yellow-500 hover:bg-yellow-600">
                           View Map
                         </Button>
                       </Link>

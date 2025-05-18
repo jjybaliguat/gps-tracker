@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-export const options = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   adapter: FirestoreAdapter({
     credential: cert({

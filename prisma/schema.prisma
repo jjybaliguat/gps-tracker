@@ -63,12 +63,27 @@ model User {
   minibuses MiniBus[]
   companyName String?
   companyAddress  String?
+  routeId String? @db.ObjectId
+  route Route? @relation(fields: [routeId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   accounts      Account[]
   sessions      Session[]
 
   device Device[]
+}
+
+model Route {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  startLat       Float
+  startLng       Float
+  endLat         Float
+  endLng         Float
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  Trip           Trip[]
+  User           User[]
 }
 
 model SemaphoreKey {
@@ -157,20 +172,20 @@ enum TripDirection {
 }
 
 enum TripStatus {
-  NOT_STARTED
+  IDLE
   ONGOING
   COMPLETED
   CANCELLED
 }
 
-model Route {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
-  name        String
-  waypoints   Json // Stores an array of lat/lng points
-  createdAt   DateTime @default(now())
+// model Route {
+//   id          String  @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
+//   name        String
+//   waypoints   Json // Stores an array of lat/lng points
+//   createdAt   DateTime @default(now())
 
-  Trip Trip[]
-}
+//   Trip Trip[]
+// }
 
 model Alert {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId

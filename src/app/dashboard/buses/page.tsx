@@ -76,7 +76,7 @@ export default function MiniBusesPage() {
                   <TableHead>Capacity</TableHead>
                   <TableHead>Last Location</TableHead>
                   <TableHead>Last Updated</TableHead>
-                  <TableHead>Route Logs</TableHead>
+                  <TableHead>Trip Logs</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -112,7 +112,7 @@ export default function MiniBusesPage() {
                           ? new Date(latestGPS.timestamp).toLocaleString()
                           : new Date(bus.createdAt).toLocaleString()}
                       </TableCell>
-                      {bus.device && <TableCell><Link href={`/dashboard/buses/route-logs/${bus.device?.id}`} className='text-primary hover:underline'>View Route</Link></TableCell>}
+                      {bus.device && <TableCell><Link href={`/dashboard/buses/trip-logs/${bus.device?.id}`} className='text-primary hover:underline'>View Trips</Link></TableCell>}
                     </TableRow>
                   )
                 })}

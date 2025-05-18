@@ -1,6 +1,9 @@
 "use server"
 
 import { decrypt } from "@/utils/secure-key"
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 
 export async function getMessages(apikey: string){
     try {
@@ -12,6 +15,37 @@ export async function getMessages(apikey: string){
         messages.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
         return messages;
+    } catch (error) {
+        console.log(error)
+        return null
+    }
+}
+
+export async function getTotalBuses(ownerId: string | null){
+    if(!ownerId) return null
+    try {
+        const total = await prisma.miniBus.count({
+            where: {
+                ownerId
+            }
+        })
+
+        return total
+    } catch (error) {
+        console.log(error)
+        return null
+    }
+}
+export async function getTotalDevices(ownerId: string | null){
+    if(!ownerId) return null
+    try {
+        const total = await prisma.device.count({
+            where: {
+                userId: ownerId
+            }
+        })
+
+        return total
     } catch (error) {
         console.log(error)
         return null
