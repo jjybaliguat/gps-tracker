@@ -81,11 +81,11 @@ const navData = {
       url: "/dashboard/alerts",
       icon: CircleAlert
     },
-    {
-      title: "Mini-Bus Reports",
-      url: "/dashboard/reports",
-      icon: ChartLine
-    },
+    // {
+    //   title: "Mini-Bus Reports",
+    //   url: "/dashboard/reports",
+    //   icon: ChartLine
+    // },
     {
       title: "SMS",
       url: "/dashboard/sms",

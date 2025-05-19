@@ -25,7 +25,7 @@ const Dashboard = async() => {
         <OverviewCard title='Total Buses' image='/bus2.png' total={totalBuses} />
         <OverviewCard title='Total Devices' image='/gps-device.png' total={totalDevices} />
       </div>
-      <div className="h-[80vh] md:h-[90vh] w-full rounded-xl md:min-h-min z-40 p-2 md:p-4">
+      <div className="h-[80vh] md:h-[90vh] w-full rounded-xl md:min-h-min z-40 p-2 md:p-4 pb-4">
         <Map />
       </div>
     </>

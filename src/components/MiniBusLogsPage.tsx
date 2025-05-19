@@ -70,6 +70,7 @@ export default function MiniBusLogsPage({ devId }: Props) {
             <SelectItem value="2">Last 2 Days</SelectItem>
             <SelectItem value="3">Last 3 Days</SelectItem>
             <SelectItem value="4">Last 4 Days</SelectItem>
+            <SelectItem value="5">Last 5 Days</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -85,6 +86,15 @@ export default function MiniBusLogsPage({ devId }: Props) {
 
               const startTime = new Date(trip[0].timestamp).toLocaleString();
               const endTime = new Date(trip[trip.length - 1].timestamp).toLocaleString();
+              const start: Date = new Date(trip[0].timestamp)
+              const end: Date = new Date(trip[trip.length - 1].timestamp)
+              const durationInSecs: number = (end.getTime() - start.getTime()) / 1000;
+              const hours = Math.floor(durationInSecs / 3600);
+              const minutes = Math.floor((durationInSecs % 3600) / 60);
+              const seconds = Math.floor(durationInSecs % 60);
+              const expectedData = Math.floor(durationInSecs) / 5;
+              const actualData = trip.length;
+              const effeciency = (actualData/expectedData) * 100
 
               return (
                 <div
@@ -98,6 +108,21 @@ export default function MiniBusLogsPage({ devId }: Props) {
                     </p>
                     <p className="text-sm text-gray-600">
                       🔴 End: <span className="font-medium">{endTime}</span>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Duration: <span className="font-medium">{`${hours} hrs, ${minutes} min. and ${seconds} secs.`}</span>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Expected No. of Data: <span className="font-medium">{expectedData.toFixed(0)}</span>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Actual Data: <span className="font-medium">{actualData}</span>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Accuracy: <span className="font-medium">{effeciency.toFixed(0)} %</span>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Data Loss: <span className="font-medium">{100 - Number(effeciency.toFixed(0))} %</span>
                     </p>
                   </div>
                   <RouteMap routeLogs={trip} />

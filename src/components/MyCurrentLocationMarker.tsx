@@ -8,11 +8,11 @@ const MyCurrentLocationMarker = ({myCoord}: {myCoord: [number, number] | null}) 
     const map = useMap();
     const {data: session} = useSession()
 
-    // useEffect(() => {
-    //     if (map && myCoord) {
-    //       map.flyTo(myCoord, 15); // Zoom level 13
-    //     }
-    //   }, [map]);
+    useEffect(() => {
+        if (map && myCoord) {
+          map.flyTo(myCoord, 15); // Zoom level 13
+        }
+      }, [map]);
     
     // const map = useMapEvents({
     //     click() {

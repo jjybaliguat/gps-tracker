@@ -39,7 +39,8 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const lastDirectionCheckTimestamps = new Map<string, number>();
   const DIRECTION_CHECK_INTERVAL_MS = 3000; // 3 seconds
   const MAX_HISTORY = 5; // Keep last 5 distance records
-  const DISTANCE_TREND_THRESHOLD = 0.01; // Minimum change in km (10 meters)
+  const DISTANCE_TREND_THRESHOLD = 0.001; // Minimum change in km (10 meters)
+  console.log(lastDistancesSeries)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -234,8 +235,8 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const handleFly = (lat: number, lon: number) => {
     if (!mapRef.current) return;
 
-    mapRef.current.flyTo([lat, lon], 18); // 18 = zoom level
-    mapContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    mapRef?.current.flyTo([lat, lon], 18); // 18 = zoom level
+    mapContainerRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   return (
@@ -243,79 +244,81 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
 
-        {nearbyBuses?.map((bus) => (
-          <div
-            key={bus?.id}
-            className="flex items-center gap-4 p-4 rounded-xl shadow-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition hover:shadow-lg"
-          >
-            <div className="relative h-14 w-14 shrink-0">
-              <Image
-                src="/bus2.png"
-                alt="bus-icon"
-                fill
-                className="rounded-full object-cover object-center"
-              />
-            </div>
-
-            <div className="flex flex-col text-sm text-gray-700 dark:text-gray-300 w-full">
-              <div className="flex justify-between">
-                <span className="font-semibold">{bus?.name}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">{bus?.assignedBus?.plateNumber} <Button onClick={() => handleFly(bus.lat, bus.lon)} className="py-1 px-2" size="sm">View</Button></span>
+        <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4'>
+          {nearbyBuses?.map((bus, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-4 p-4 rounded-xl shadow-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition hover:shadow-lg"
+            >
+              <div className="relative h-14 w-14 shrink-0">
+                <Image
+                  src="/bus2.png"
+                  alt="bus-icon"
+                  fill
+                  className="rounded-full object-cover object-center"
+                />
               </div>
 
-              <div className="w-full max-w-lg text-xs">
-                <div className="break-words overflow-hidden">
-                  <span className="font-semibold">Location: </span>
-                  {bus.locationText?.split(",").slice(0, 3)}
+              <div className="flex flex-col text-sm text-gray-700 dark:text-gray-300 w-full">
+                <div className="flex justify-between items-center mb-5">
+                  <span className="font-semibold">{bus?.name}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{bus?.assignedBus?.plateNumber} <Button onClick={() => handleFly(bus.lat, bus.lon)} className="py-1 px-2" size="sm">View</Button></span>
                 </div>
-              </div>
-              <div className='grid grid-cols-2 gap-1'>
+
+                <div className="w-full max-w-lg text-xs">
+                  <div className="break-words overflow-hidden">
+                    <span className="font-semibold">Location: </span>
+                    {bus.locationText?.split(",").slice(0, 3)}
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-1'>
+                  <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
+                    <span className="font-semibold">Capacity:</span> {bus.assignedBus.capacity}
+                  </div>
+                  <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
+                    <span className="font-semibold">Passenger:</span> {bus.passengerCount}
+                  </div>
+                </div>
                 <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
-                  <span className="font-semibold">Capacity:</span> {bus.assignedBus.capacity}
+                  <span className="font-semibold">Speed:</span> {bus.speed} km/h
                 </div>
-                <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
-                  <span className="font-semibold">Passenger:</span> {bus.passengerCount}
-                </div>
-              </div>
-              <div className='mt-1 text-xs text-gray-600 dark:text-gray-400'>
-                <span className="font-semibold">Speed:</span> {bus.speed} km/h
-              </div>
-              <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                {bus.speed < 2 ? (
-                  <span className="">
-                    <span className="font-semibold">Status:</span>{' '}
-                    <span className="text-red-600 font-semibold">Stopped</span>
-                    <span className="ml-2">| ETA: Not moving</span>
-                  </span>
-                ) : (
-                  <span className="">
-                    <span className="font-semibold">ETA:</span>{' '}
-                    {bus.eta !== null ? (
-                      <span className="text-green-600 font-semibold">{bus.eta} min</span>
-                    ) : (
-                      "Unable to calculate"
-                    )}
-                  </span>
-                )}
-
-                {bus.direction && bus.speed > 2 && (
-                  <span className="col-span-2">
-                    <span className="font-semibold">Direction:</span>{' '}
-                    <span
-                      className={
-                        bus.direction === "Approaching"
-                          ? "text-green-500 font-semibold"
-                          : "text-yellow-500 font-semibold"
-                      }
-                    >
-                      {bus.direction}
+                <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  {bus.speed < 2 ? (
+                    <span className="">
+                      <span className="font-semibold">Status:</span>{' '}
+                      <span className="text-red-600 font-semibold">Stopped</span>
+                      <span className="ml-2">| ETA: Not moving</span>
                     </span>
-                  </span>
-                )}
+                  ) : (
+                    <span className="">
+                      <span className="font-semibold">ETA:</span>{' '}
+                      {bus.eta !== null ? (
+                        <span className="text-green-600 font-semibold">{bus.eta} min</span>
+                      ) : (
+                        "Unable to calculate"
+                      )}
+                    </span>
+                  )}
+
+                  {bus.direction && bus.speed > 2 && (
+                    <span className="col-span-2">
+                      <span className="font-semibold">Direction:</span>{' '}
+                      <span
+                        className={
+                          bus.direction === "Approaching"
+                            ? "text-green-500 font-semibold"
+                            : "text-yellow-500 font-semibold"
+                        }
+                      >
+                        {bus.direction}
+                      </span>
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
     </>
