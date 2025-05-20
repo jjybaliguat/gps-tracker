@@ -43,24 +43,30 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const DISTANCE_TREND_THRESHOLD = 0.01; // Minimum change in km (10 meters)
   // console.log(lastDistancesSeries)
 
- // Get current user location
-  useEffect(() => {
-    const interval = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // console.log(position.coords.latitude)
-          setUserLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        (error) => console.error("Geolocation error:", error),
-        { enableHighAccuracy: true }
-      );
-    }, 5000); // every 1 second
-
-    return () => clearInterval(interval); // cleanup
-  }, []);
+ useEffect(() => {
+  console.log("Requesting location...");
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Location fetched:", position.coords);
+        setUserLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+}, []);
 
 
   // Fetch reverse geocoded location
@@ -106,6 +112,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
 
     client.on("message", (topic, payload) => {
       const msg = payload?.toString();
+      console.log(`USER LOCATION: ${userLocation?.lat} ${userLocation?.lon}`)
 
       devices?.forEach(async (device: Device) => {
         // Handle passenger count 
