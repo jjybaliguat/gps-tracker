@@ -36,9 +36,9 @@ export async function GET(req: Request) {
       }
     })
 
-    return NextResponse.json({ buses }, { status: 200 })
+    return NextResponse.json({ buses }, { status: 200, headers })
   } catch (error) {
     console.error(error)
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500, headers })
   }
 }
