@@ -86,7 +86,7 @@ useEffect(() => {
       id={routeLogs[0].id}
       center={[routeLogs[routeLogs.length - 1].lat, routeLogs[routeLogs.length - 1].lon]}
       zoom={16}
-      style={{ height: '90vh', width: '100%' }}
+      style={{ height: '300px', width: '100%' }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <FullscreenControl position="topright" />
