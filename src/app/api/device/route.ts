@@ -7,6 +7,8 @@ export async function GET(req: Request){
     const url = new URL(req.url)
     const params = new URLSearchParams(url.search)
     const userId = params.get('userId') as string
+    const headers = new Headers();
+    headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     try {
         const devices = await prisma.device.findMany({
             where: {

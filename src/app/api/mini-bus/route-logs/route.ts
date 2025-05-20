@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
+  const headers = new Headers();
+  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   const url = new URL(req.url);
   const params = new URLSearchParams(url.search);
   const devId = params.get("devId") as string;
