@@ -201,6 +201,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               setNearbyBuses((prev) => {
                 const existing = (prev ?? []).find((bus) => bus.id === device.id);
                 const filtered = (prev ?? []).filter((bus) => bus.id !== device.id);
+                console.log(eta)
 
                 const updated = [
                   ...filtered,
@@ -314,7 +315,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                       )}
                     </span>
                   )}
-
                   {bus.direction && bus.speed > 2 && (
                     <span className="col-span-2">
                       <span className="font-semibold">Direction:</span>{' '}
