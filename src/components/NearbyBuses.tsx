@@ -106,7 +106,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
         // Handle passenger count 
         // console.log(device)
         if (topic === device.passengerCountTopic) {
-          mutate("getDevices");
+          mutate("getDevices")
           try {
             const data = JSON.parse(msg);
             // console.log(data)
@@ -118,6 +118,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                   : bus
               )
             );
+            // mutate("getDevices")
           } catch (e) {
             console.error("Invalid passenger count JSON:", msg);
           }
@@ -203,7 +204,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     speed: data.speed,
                     eta,
                     direction,
-                    passengerCount: existing?.passengerCount ?? device.passengerCount, // ✅ Preserve existing passengerCount
+                    passengerCount: existing?.passengerCount? existing?.passengerCount : device.passengerCount, // ✅ Preserve existing passengerCount
                     locationText: locationText ?? existing?.locationText ?? "Fetching...",
                   },
                 ];
