@@ -44,6 +44,19 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const [currentDistanceNow, setCurrentDistanceNow] = useState<number | null>(0)
   // console.log(lastDistancesSeries)
 
+  function getUserLocation() {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const coords = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+      };
+      setUserLocation(coords);
+    },
+    (err) => console.error("Error getting location:", err)
+  );
+}
+
  useEffect(() => {
   console.log("Requesting location...");
   if (navigator.geolocation) {
@@ -269,6 +282,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
     <>
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
+        <button onClick={getUserLocation}>Enable Location</button>
 
         <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4 p-1 md:p-2'>
           {nearbyBuses?.map((bus, index) => (
