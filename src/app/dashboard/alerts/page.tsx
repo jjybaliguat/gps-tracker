@@ -17,7 +17,9 @@ export default function AlertsPage() {
 
   async function GetAlerts() {
     try {
-      const response = await fetch(`/api/alerts`)
+      const response = await fetch(`/api/alerts`,{
+        cache: "no-store"
+      })
 
       const data = await response.json()
       // console.log(data)

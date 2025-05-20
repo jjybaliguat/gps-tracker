@@ -193,7 +193,9 @@ const Map = () => {
 
     async function GetDevices() {
       try {
-        const response = await fetch(`/api/device/get-all`)
+        const response = await fetch(`/api/device/get-all`, {
+        cache: "no-store"
+      })
         const data = await response.json()
         return data
       } catch (error) {

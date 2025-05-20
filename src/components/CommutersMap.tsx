@@ -57,7 +57,7 @@ const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   // Get devices
-  const { data: devices, isLoading } = useSWR(user ? 'getDevices' : null, GetDevices)
+  const { data: devices, isLoading } = useSWR(user ? 'getCommuterDevices' : null, GetDevices)
 
   // Initialize gpsData to match number of devices
   useEffect(() => {
@@ -87,7 +87,9 @@ const Map = () => {
 
   async function GetDevices() {
     try {
-      const response = await fetch(`/api/device/get-all`)
+      const response = await fetch(`/api/device/get-all`, {
+        cache: "no-store"
+      })
       const data = await response.json()
       return data
     } catch (error) {
