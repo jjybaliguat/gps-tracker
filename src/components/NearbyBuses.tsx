@@ -46,6 +46,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          mutate("getDevices")
           setUserLocation({
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
@@ -247,7 +248,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
 
-        <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4 p-6'>
+        <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4 p-1 md:p-2'>
           {nearbyBuses?.map((bus, index) => (
             <div
               key={index}
