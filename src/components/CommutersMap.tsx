@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Tooltip, Circle, useMap } from 'react-leaflet'
 import { useEffect, useRef, useState } from 'react'
 import MyCurrentLocationMarker from './MyCurrentLocationMarker'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import mqtt from 'mqtt'
 import { useSession } from 'next-auth/react'
 import { Device } from '@/types/Device'
@@ -72,6 +72,7 @@ const Map = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // console.log(position.coords.latitude)
+          mutate('getDevices')
           setMyCoord([
             position.coords.latitude,
             position.coords.longitude,
