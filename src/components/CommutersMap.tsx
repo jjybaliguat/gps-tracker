@@ -57,7 +57,7 @@ const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   // Get devices
-  const { data: devices, isLoading } = useSWR(user ? 'getCommuterDevices' : null, GetDevices)
+  const { data: devices, isLoading } = useSWR(user ? 'getDevices' : null, GetDevices)
 
   // Initialize gpsData to match number of devices
   useEffect(() => {

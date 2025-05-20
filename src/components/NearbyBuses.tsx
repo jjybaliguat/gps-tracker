@@ -42,22 +42,28 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const DISTANCE_TREND_THRESHOLD = 0.001; // Minimum change in km (10 meters)
   // console.log(lastDistancesSeries)
 
+  useEffect(()=> {
+    mutate('getDevices');
+  }, [])
+ // Get current user location
   useEffect(() => {
-    if (typeof window !== 'undefined' && navigator.geolocation) {
+    const interval = setInterval(() => {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          mutate("getDevices")
+        (position) => {
+          // console.log(position.coords.latitude)
           setUserLocation({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
           });
         },
-        (err) => {
-          console.error("Geolocation error:", err);
-        }
+        (error) => console.error("Geolocation error:", error),
+        { enableHighAccuracy: true }
       );
-    }
+    }, 1000); // every 1 second
+
+    return () => clearInterval(interval); // cleanup
   }, []);
+
 
   // Fetch reverse geocoded location
   const fetchLocationText = async (lat: number, lon: number) => {
