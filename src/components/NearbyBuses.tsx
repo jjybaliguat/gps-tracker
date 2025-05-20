@@ -205,7 +205,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     speed: data.speed,
                     eta,
                     direction,
-                    passengerCount: existing?.passengerCount? existing?.passengerCount : device.passengerCount, // ✅ Preserve existing passengerCount
+                    passengerCount: existing?.passengerCount?? device.passengerCount, // ✅ Preserve existing passengerCount
                     locationText: locationText ?? existing?.locationText ?? "Fetching...",
                   },
                 ];
