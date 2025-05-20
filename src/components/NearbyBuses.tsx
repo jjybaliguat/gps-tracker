@@ -160,7 +160,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, data.lat, data.lon)
                 : null;
 
-                // console.log(currentDistance)
+                console.log(`Current Distance: ${currentDistance}`)
 
               let direction: "Approaching" | "Moving away" | null = null;
 
@@ -191,6 +191,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               let eta: number | undefined;
               if (userLocation && data.speed && data.speed  > 2 && currentDistance !== null) {
                 const speedInKmPerMin = data.speed / 60;
+                console.log(`Speed: ${speedInKmPerMin}`)
                 if (speedInKmPerMin > 0) {
                   eta = parseFloat((currentDistance / speedInKmPerMin).toFixed(2));
                 } else {
@@ -201,7 +202,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               setNearbyBuses((prev) => {
                 const existing = (prev ?? []).find((bus) => bus.id === device.id);
                 const filtered = (prev ?? []).filter((bus) => bus.id !== device.id);
-                console.log(eta)
+                console.log(`ETA: ${eta}`)
 
                 const updated = [
                   ...filtered,
