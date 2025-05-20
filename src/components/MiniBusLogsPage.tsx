@@ -57,7 +57,7 @@ export default function MiniBusLogsPage({ devId }: Props) {
   }, [devId, selectedRange]);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-1 md:p-2 lg:p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mini-Bus Trip Logs</h1>
         <Select value={selectedRange.toString()} onValueChange={value => setSelectedRange(Number(value))}>
@@ -80,7 +80,7 @@ export default function MiniBusLogsPage({ devId }: Props) {
       ) : trips.length > 0 ? (
         <>
           <p>Total Trips: {trips.length}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-1 py-6">
             {trips.map((trip, index) => {
               if (trip.length === 0) return null;
 
@@ -101,7 +101,7 @@ export default function MiniBusLogsPage({ devId }: Props) {
                   key={index}
                   className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200"
                 >
-                  <div className="p-4 border-b">
+                  <div className="p-2 border-b">
                     <h2 className="text-lg font-semibold text-gray-800">Trip #{index + 1}</h2>
                     <p className="text-sm text-gray-600">
                       🟢 Start: <span className="font-medium">{startTime}</span>
