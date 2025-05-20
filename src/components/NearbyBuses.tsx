@@ -160,18 +160,31 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               if (currentDistance !== null) {
                 const now = Date.now();
                 const lastCheck = lastDirectionCheckTimestamps.current.get(device.id) || 0;
-                if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
-                  const series = lastDistancesSeries.current.get(device.id) || [];
-                  series.push(currentDistance);
-                  if (series.length > MAX_HISTORY) series.shift();
-                  lastDistancesSeries.current.set(device.id, series);
 
-                  if (series.length === MAX_HISTORY) {
-                    const diffs = series.slice(1).map((v, i) => v - series[i]);
-                    const allDecreasing = diffs.every((d) => d < -DISTANCE_TREND_THRESHOLD);
-                    const allIncreasing = diffs.every((d) => d > DISTANCE_TREND_THRESHOLD);
-                    if (allDecreasing) direction = "Approaching";
-                    else if (allIncreasing) direction = "Moving away";
+                if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
+                  const history = lastDistancesSeries.current.get(device.id) || [];
+
+                  // Add the new distance
+                  history.push(currentDistance);
+                  if (history.length > MAX_HISTORY) {
+                    history.shift(); // Keep only last N entries
+                  }
+                  lastDistancesSeries.current.set(device.id, history);
+
+                  // Determine trend only if we have enough data
+                  if (history.length === MAX_HISTORY) {
+                    const deltas = history.slice(1).map((val, idx) => val - history[idx]);
+
+                    const decreasing = deltas.every(delta => delta < -DISTANCE_TREND_THRESHOLD);
+                    const increasing = deltas.every(delta => delta > DISTANCE_TREND_THRESHOLD);
+
+                    if (decreasing) {
+                      direction = "Approaching";
+                    } else if (increasing) {
+                      direction = "Moving away";
+                    } else {
+                      direction = null;
+                    }
                   }
 
                   lastDirectionCheckTimestamps.current.set(device.id, now);
