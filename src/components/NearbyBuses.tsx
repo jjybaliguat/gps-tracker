@@ -2,13 +2,9 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import mqtt from "mqtt";
-import useSWR, { mutate } from 'swr';
 import { Device } from '@/types/Device';
-import Image from 'next/image';
 import { getDistanceFromLatLonInKm } from '@/utils/getDistanceFromLatLonInKM';
-import { reverseGeocode } from '@/utils/reverseGeocode';
 import { Button } from './ui/button';
-import { useMap } from 'react-leaflet';
 import { formatEtaMinutes } from '@/utils/formatETAMinutes';
 
 interface NearbyBusesProps {
@@ -33,14 +29,14 @@ interface NearbyBusesProps {
 const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], mapRef: any, mapContainerRef?: any}) => {
   const [nearbyBuses, setNearbyBuses] = useState<NearbyBusesProps[] | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null)
-  const timeouts = new Map<string, NodeJS.Timeout>();
+  const timeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
   const lastLocationFetchRef = useRef<Map<string, number>>(new Map());
-  const FETCH_INTERVAL_MS = 30_000; // 30 seconds
-  const lastDistancesSeries = new Map<string, number[]>(); // stores last few distances
-  const lastDirectionCheckTimestamps = new Map<string, number>();
-  const DIRECTION_CHECK_INTERVAL_MS = 3000; // 3 seconds
-  const MAX_HISTORY = 5; // Keep last 5 distance records
-  const DISTANCE_TREND_THRESHOLD = 0.01; // Minimum change in km (10 meters)
+  const FETCH_INTERVAL_MS = 30_000;
+  const lastDistancesSeries = useRef<Map<string, number[]>>(new Map());
+  const lastDirectionCheckTimestamps = useRef<Map<string, number>>(new Map());
+  const DIRECTION_CHECK_INTERVAL_MS = 3000;
+  const MAX_HISTORY = 5;
+  const DISTANCE_TREND_THRESHOLD = 0.01;
   const [currentDistanceNow, setCurrentDistanceNow] = useState<number | null>(0)
   // console.log(lastDistancesSeries)
 
@@ -105,37 +101,19 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
     });
 
     client.on("connect", () => {
-      console.log("Connected to MQTT broker");
-      devices?.map((device: Device) => {
-        client.subscribe(device.gpsTopic, (err) => {
-          if (!err) {
-            console.log(`Subscribed to ${device.gpsTopic}`);
-          } else {
-            console.error("Subscription error:", err);
-          }
-        });
-        client.subscribe(device.passengerCountTopic, (err) => {
-          if (!err) {
-            console.log(`Subscribed to ${device.passengerCountTopic}`);
-          } else {
-            console.error("Subscription error:", err);
-          }
-        });
+      devices?.forEach((device: Device) => {
+        client.subscribe(device.gpsTopic);
+        client.subscribe(device.passengerCountTopic);
       });
     });
 
     client.on("message", (topic, payload) => {
       const msg = payload?.toString();
-      console.log(`USER LOCATION: ${userLocation?.lat} ${userLocation?.lon}`)
 
       devices?.forEach(async (device: Device) => {
-        // Handle passenger count 
-        // console.log(device)
         if (topic === device.passengerCountTopic) {
           try {
             const data = JSON.parse(msg);
-            // console.log(data)
-
             setNearbyBuses((prevBuses: any) =>
               prevBuses?.map((bus: NearbyBusesProps) =>
                 bus.deviceId === data.devId
@@ -143,92 +121,76 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                   : bus
               )
             );
-            // mutate("getDevices")
           } catch (e) {
             console.error("Invalid passenger count JSON:", msg);
           }
         }
 
-        // Handle GPS topic
         if (topic === device.gpsTopic) {
           try {
             const data = JSON.parse(msg);
             if (data.lat && data.lon) {
               const now = Date.now();
               const lastFetched = lastLocationFetchRef.current.get(device.id) || 0;
-
               let locationText: string | null = null;
-
               if (now - lastFetched > FETCH_INTERVAL_MS) {
                 lastLocationFetchRef.current.set(device.id, now);
                 locationText = await fetchLocationText(data.lat, data.lon);
               }
 
-              // Set timeout to remove offline bus
-              if (timeouts.has(device.id)) {
-                clearTimeout(timeouts.get(device.id)!);
+              if (timeouts.current.has(device.id)) {
+                clearTimeout(timeouts.current.get(device.id)!);
               }
-              timeouts.set(
+              timeouts.current.set(
                 device.id,
                 setTimeout(() => {
                   setNearbyBuses((prev) => (prev ?? []).filter((bus) => bus.id !== device.id));
-                  timeouts.delete(device.id);
-                }, 3000)
+                  timeouts.current.delete(device.id);
+                }, 10000)
               );
 
-              // Calculate distance and direction
               let currentDistance;
-              if(userLocation && (data.lat || data.lon)){
+              if(userLocation){
                 currentDistance = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, Number(data.lat), Number(data.lon))
-              }else{
-                currentDistance = null
+              } else {
+                currentDistance = null;
               }
-                setCurrentDistanceNow(currentDistance)
+              setCurrentDistanceNow(currentDistance);
 
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
-                const lastCheck = lastDirectionCheckTimestamps.get(device.id) || 0;
-                
+                const now = Date.now();
+                const lastCheck = lastDirectionCheckTimestamps.current.get(device.id) || 0;
                 if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
-                  const series = lastDistancesSeries.get(device.id) || [];
+                  const series = lastDistancesSeries.current.get(device.id) || [];
                   series.push(currentDistance);
-                  if (series.length > MAX_HISTORY) series.shift(); // keep last 5
-
-                  lastDistancesSeries.set(device.id, series);
+                  if (series.length > MAX_HISTORY) series.shift();
+                  lastDistancesSeries.current.set(device.id, series);
 
                   if (series.length === MAX_HISTORY) {
                     const diffs = series.slice(1).map((v, i) => v - series[i]);
                     const allDecreasing = diffs.every((d) => d < -DISTANCE_TREND_THRESHOLD);
                     const allIncreasing = diffs.every((d) => d > DISTANCE_TREND_THRESHOLD);
-
                     if (allDecreasing) direction = "Approaching";
                     else if (allIncreasing) direction = "Moving away";
                   }
 
-                  lastDirectionCheckTimestamps.set(device.id, now);
+                  lastDirectionCheckTimestamps.current.set(device.id, now);
                 }
               }
 
-              // Calculate ETA
               let eta: number | undefined;
-              console.log("Speed in prod:", data.speed);
-              console.log("User Location:", userLocation);
-              console.log("Current Distance:", userLocation);
               if (userLocation && data.speed && Number(data.speed) > 2 && currentDistance !== null) {
                 const speedInKmPerMin = Number(data.speed) / 60;
-                console.log(`Speed: ${speedInKmPerMin}`)
                 if (speedInKmPerMin > 0) {
                   eta = parseFloat((currentDistance / speedInKmPerMin).toFixed(2));
-                } else {
-                  eta = undefined;
                 }
               }
 
               setNearbyBuses((prev) => {
                 const existing = (prev ?? []).find((bus) => bus.id === device.id);
                 const filtered = (prev ?? []).filter((bus) => bus.id !== device.id);
-                console.log(`ETA: ${eta}`)
 
                 const updated = [
                   ...filtered,
@@ -242,7 +204,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     speed: data.speed,
                     eta,
                     direction,
-                    passengerCount: existing?.passengerCount?? device.passengerCount, // ✅ Preserve existing passengerCount
+                    passengerCount: existing?.passengerCount ?? device.passengerCount,
                     locationText: locationText ?? existing?.locationText ?? "Fetching...",
                   },
                 ];
@@ -258,7 +220,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 return updated;
               });
             } else {
-              // If invalid GPS data, remove from nearby buses
               setNearbyBuses((prev) => (prev ?? []).filter((bus) => bus.id !== device.id));
             }
           } catch (e) {
@@ -271,7 +232,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
     return () => {
       client.end();
     };
-  }, [devices]);
+  }, [devices, userLocation]);
 
   const handleFly = (lat: number, lon: number) => {
     if (!mapRef.current) return;
