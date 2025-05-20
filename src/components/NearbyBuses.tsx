@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import mqtt from "mqtt";
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { Device } from '@/types/Device';
 import Image from 'next/image';
 import { getDistanceFromLatLonInKm } from '@/utils/getDistanceFromLatLonInKM';
@@ -106,6 +106,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
         // Handle passenger count 
         // console.log(device)
         if (topic === device.passengerCountTopic) {
+          mutate("getDevices");
           try {
             const data = JSON.parse(msg);
             // console.log(data)
