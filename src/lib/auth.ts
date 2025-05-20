@@ -58,6 +58,17 @@ export const authOptions = {
         }
     })
   ],
+  cookies: {
+    state: {
+      name: `next-auth.state-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production", // use false if using HTTP
+      },
+    },
+  },
   // database: process.env.DATABASE_URL,
   session: {
     strategy: "jwt",
