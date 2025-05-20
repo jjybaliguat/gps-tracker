@@ -40,7 +40,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const DIRECTION_CHECK_INTERVAL_MS = 3000; // 3 seconds
   const MAX_HISTORY = 5; // Keep last 5 distance records
   const DISTANCE_TREND_THRESHOLD = 0.001; // Minimum change in km (10 meters)
-  console.log(lastDistancesSeries)
+  // console.log(lastDistancesSeries)
 
   useEffect(() => {
     if (typeof window !== 'undefined' && navigator.geolocation) {
