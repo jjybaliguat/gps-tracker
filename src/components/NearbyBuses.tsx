@@ -177,10 +177,12 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               );
 
               // Calculate distance and direction
-              const currentDistance = userLocation
-                ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, Number(data.lat), Number(data.lon))
-                : null;
-              
+              let currentDistance;
+              if(userLocation && (data.lat || data.lon)){
+                currentDistance = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, Number(data.lat), Number(data.lon))
+              }else{
+                currentDistance = null
+              }
                 setCurrentDistanceNow(currentDistance)
 
               let direction: "Approaching" | "Moving away" | null = null;
