@@ -310,7 +310,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                       )}
                     </span>
                   )}
-                  <div>Direction: {bus.direction}</div>
                   {bus.direction && bus.speed > 2 && (
                     <span className="col-span-2">
                       <span className="font-semibold">Direction:</span>{' '}
