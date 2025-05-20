@@ -160,8 +160,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, data.lat, data.lon)
                 : null;
 
-                console.log(`Current Distance: ${currentDistance}`)
-
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
@@ -189,8 +187,11 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
 
               // Calculate ETA
               let eta: number | undefined;
-              if (userLocation && data.speed && data.speed  > 2 && currentDistance !== null) {
-                const speedInKmPerMin = data.speed / 60;
+              console.log("Speed in prod:", data.speed);
+              console.log("User Location:", userLocation);
+              console.log("Current Distance:", userLocation);
+              if (userLocation && data.speed && Number(data.speed) > 2 && currentDistance !== null) {
+                const speedInKmPerMin = Number(data.speed) / 60;
                 console.log(`Speed: ${speedInKmPerMin}`)
                 if (speedInKmPerMin > 0) {
                   eta = parseFloat((currentDistance / speedInKmPerMin).toFixed(2));
