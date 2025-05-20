@@ -285,7 +285,8 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 <div className="w-full max-w-lg text-xs">
                   <div className="break-words overflow-hidden">
                     <span className="font-semibold">Location: </span>
-                    {bus.locationText?.split(",").slice(0, 3)}
+                    {/* {bus.locationText?.split(",").slice(0, 3)} */}
+                    Lat: {userLocation?.lat} Lon: {userLocation?.lon}
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-1'>
