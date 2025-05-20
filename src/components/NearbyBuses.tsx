@@ -9,6 +9,7 @@ import { getDistanceFromLatLonInKm } from '@/utils/getDistanceFromLatLonInKM';
 import { reverseGeocode } from '@/utils/reverseGeocode';
 import { Button } from './ui/button';
 import { useMap } from 'react-leaflet';
+import { formatEtaMinutes } from '@/utils/formatETAMinutes';
 
 interface NearbyBusesProps {
   id: string,
@@ -159,11 +160,13 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, data.lat, data.lon)
                 : null;
 
+                // console.log(currentDistance)
+
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
                 const lastCheck = lastDirectionCheckTimestamps.get(device.id) || 0;
-
+                
                 if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
                   const series = lastDistancesSeries.get(device.id) || [];
                   series.push(currentDistance);
@@ -186,9 +189,13 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
 
               // Calculate ETA
               let eta: number | undefined;
-              if (userLocation && data.speed && data.speed > 2 && currentDistance !== null) {
+              if (userLocation && data.speed && data.speed  > 2 && currentDistance !== null) {
                 const speedInKmPerMin = data.speed / 60;
-                eta = speedInKmPerMin > 0 ? +(currentDistance / speedInKmPerMin).toFixed(2) : undefined;
+                if (speedInKmPerMin > 0) {
+                  eta = parseFloat((currentDistance / speedInKmPerMin).toFixed(2));
+                } else {
+                  eta = undefined;
+                }
               }
 
               setNearbyBuses((prev) => {
@@ -301,7 +308,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     <span className="">
                       <span className="font-semibold">ETA:</span>{' '}
                       {bus.eta !== null ? (
-                        <span className="text-green-600 font-semibold">{bus.eta} min</span>
+                        <span className="text-green-600 font-semibold">{formatEtaMinutes(bus.eta)}</span>
                       ) : (
                         "Unable to calculate"
                       )}
