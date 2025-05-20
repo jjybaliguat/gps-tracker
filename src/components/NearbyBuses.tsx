@@ -41,7 +41,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const DIRECTION_CHECK_INTERVAL_MS = 3000; // 3 seconds
   const MAX_HISTORY = 5; // Keep last 5 distance records
   const DISTANCE_TREND_THRESHOLD = 0.01; // Minimum change in km (10 meters)
-  const [currentDistance, setCurrentDistanceNow] = useState<number | null>(0)
+  const [currentDistanceNow, setCurrentDistanceNow] = useState<number | null>(0)
   // console.log(lastDistancesSeries)
 
  useEffect(() => {
@@ -304,7 +304,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                   <div className="break-words overflow-hidden">
                     <span className="font-semibold">Location: </span>
                     {/* {bus.locationText?.split(",").slice(0, 3)} */}
-                    CurrentDistance: {currentDistance}
+                    CurrentDistance: {currentDistanceNow}
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-1'>
