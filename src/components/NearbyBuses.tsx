@@ -57,7 +57,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
         (error) => console.error("Geolocation error:", error),
         { enableHighAccuracy: true }
       );
-    }, 1000); // every 1 second
+    }, 5000); // every 1 second
 
     return () => clearInterval(interval); // cleanup
   }, []);
