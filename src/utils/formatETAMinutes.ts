@@ -1,5 +1,5 @@
 export function formatEtaMinutes(minutes: number | undefined): string {
-  const totalSeconds = Math.round(minutes?? 0 * 60);
+  const totalSeconds = Math.round((minutes ?? 0) * 60);
   const hours = Math.floor(totalSeconds / 3600);
   const mins = Math.floor((totalSeconds % 3600) / 60);
   const secs = totalSeconds % 60;
