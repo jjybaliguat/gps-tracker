@@ -158,23 +158,19 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               let direction: "Approaching" | "Moving away" | null = null;
 
               if (currentDistance !== null) {
-                const now = Date.now();
-                const lastCheck = lastDirectionCheckTimestamps.current.get(device.id) || 0;
-
-                if (now - lastCheck > DIRECTION_CHECK_INTERVAL_MS) {
                   const history = lastDistancesSeries.current.get(device.id) || [];
 
-                  // Add the new distance
+                  // Add new distance to history
                   history.push(currentDistance);
                   if (history.length > MAX_HISTORY) {
-                    history.shift(); // Keep only last N entries
+                    history.shift();
                   }
                   lastDistancesSeries.current.set(device.id, history);
 
-                  // Determine trend only if we have enough data
+                  // Check direction trend
                   if (history.length === MAX_HISTORY) {
                     const deltas = history.slice(1).map((val, idx) => val - history[idx]);
-
+                    
                     const decreasing = deltas.every(delta => delta < -DISTANCE_TREND_THRESHOLD);
                     const increasing = deltas.every(delta => delta > DISTANCE_TREND_THRESHOLD);
 
@@ -185,11 +181,10 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     } else {
                       direction = null;
                     }
-                  }
 
-                  lastDirectionCheckTimestamps.current.set(device.id, now);
+                    console.log(`Direction: ${direction}`);
+                  }
                 }
-              }
 
               let eta: number | undefined;
               if (userLocation && data.speed && Number(data.speed) > 2 && currentDistance !== null) {
@@ -315,6 +310,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                       )}
                     </span>
                   )}
+                  <div>Direction: {bus.direction}</div>
                   {bus.direction && bus.speed > 2 && (
                     <span className="col-span-2">
                       <span className="font-semibold">Direction:</span>{' '}
