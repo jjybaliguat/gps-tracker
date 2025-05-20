@@ -251,7 +251,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               key={index}
               className="relative flex items-center gap-4 p-4 rounded-xl shadow-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition hover:shadow-lg"
             >
-              <div className="">
+              {/* <div className="">
                 <div className="relative h-14 w-14 shrink-0">
                   <Image
                     src="/bus2.png"
@@ -260,7 +260,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                     className="rounded-full object-cover object-center"
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex flex-col text-sm text-gray-700 dark:text-gray-300 w-full">
                 <div className="flex justify-between items-center mb-5">
