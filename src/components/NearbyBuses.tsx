@@ -178,7 +178,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
 
               // Calculate distance and direction
               const currentDistance = userLocation
-                ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, data.lat, data.lon)
+                ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, Number(data.lat), Number(data.lon))
                 : null;
               
                 setCurrentDistanceNow(currentDistance)
