@@ -57,7 +57,7 @@ const Map = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   // Get devices
-  const { data: devices, isLoading } = useSWR(user ? 'getDevices' : null, GetDevices)
+  const { data: devices, isLoading } = useSWR(user ? 'getCommuterDevices' : null, GetDevices)
 
   // Initialize gpsData to match number of devices
   useEffect(() => {
@@ -72,7 +72,6 @@ const Map = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // console.log(position.coords.latitude)
-          mutate('getDevices')
           setMyCoord([
             position.coords.latitude,
             position.coords.longitude,

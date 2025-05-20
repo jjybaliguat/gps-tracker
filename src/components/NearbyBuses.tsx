@@ -107,7 +107,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
         // Handle passenger count 
         // console.log(device)
         if (topic === device.passengerCountTopic) {
-          mutate("getDevices")
           try {
             const data = JSON.parse(msg);
             // console.log(data)
