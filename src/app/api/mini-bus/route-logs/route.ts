@@ -25,7 +25,7 @@ export async function GET(req: Request) {
   endTime.setHours(23, 59, 59, 999);
 
   if (!devId) {
-    return NextResponse.json({message: "Missing Required field"}, {status: 400})
+    return NextResponse.json({message: "Missing Required field"}, {status: 400, headers})
   }
 
   try {
@@ -57,9 +57,9 @@ export async function GET(req: Request) {
 
     // console.log(separatedGpsLogs)
 
-    return NextResponse.json(separatedGpsLogs, {status: 200})
+    return NextResponse.json(separatedGpsLogs, {status: 200, headers})
   } catch (error) {
     console.error("Error fetching GPS logs:", error);
-    return NextResponse.json({error: "Internal Server Error"}, {status: 500})
+    return NextResponse.json({error: "Internal Server Error"}, {status: 500, headers})
   }
 }

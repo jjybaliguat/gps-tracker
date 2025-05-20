@@ -17,9 +17,9 @@ export async function GET(req: Request){
             }
         })
 
-        return NextResponse.json(alerts, {status: 200})
+        return NextResponse.json(alerts, {status: 200, headers})
     } catch (error) {
         console.log(error)
-        return NextResponse.json({message: "Internal Server Error"}, {status: 500})
+        return NextResponse.json({message: "Internal Server Error"}, {status: 500, headers})
     }
 }

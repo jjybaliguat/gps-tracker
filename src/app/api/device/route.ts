@@ -19,7 +19,7 @@ export async function GET(req: Request){
             }
         })
 
-        return NextResponse.json(devices, {status: 200})
+        return NextResponse.json(devices, {status: 200, headers})
     } catch (error) {
         console.log(error)
         return NextResponse.json(error)

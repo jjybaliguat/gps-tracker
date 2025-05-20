@@ -12,7 +12,7 @@ export async function GET(req: Request){
     const limit = params.get('limit') as string
     
     if(!ownerId) {
-        return NextResponse.json({message: "Missing Required Fields"}, {status: 400})
+        return NextResponse.json({message: "Missing Required Fields"}, {status: 400, headers})
     }
     try {
         const buses = await prisma.miniBus.findMany({
@@ -33,10 +33,10 @@ export async function GET(req: Request){
             }
         })
 
-        return NextResponse.json(buses, {status: 200})
+        return NextResponse.json(buses, {status: 200, headers})
     } catch (error) {
         console.log(error)
-        return NextResponse.json({message: "Internal Server Error"}, {status: 500})
+        return NextResponse.json({message: "Internal Server Error"}, {status: 500, headers})
     }
 }
 
