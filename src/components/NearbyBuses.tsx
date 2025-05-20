@@ -37,7 +37,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   const DIRECTION_CHECK_INTERVAL_MS = 3000;
   const MAX_HISTORY = 5;
   const DISTANCE_TREND_THRESHOLD = 0.01;
-  const [currentDistanceNow, setCurrentDistanceNow] = useState<number | null>(0)
   // console.log(lastDistancesSeries)
 
   function getUserLocation() {
@@ -155,7 +154,6 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
               } else {
                 currentDistance = null;
               }
-              setCurrentDistanceNow(currentDistance);
 
               let direction: "Approaching" | "Moving away" | null = null;
 
@@ -273,15 +271,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
                 <div className="w-full max-w-lg text-xs">
                   <div className="break-words overflow-hidden">
                     <span className="font-semibold">Location: </span>
-                    {/* {bus.locationText?.split(",").slice(0, 3)} */}
-                    Lat: {userLocation?.lat} Lon: {userLocation?.lon}
-                  </div>
-                </div>
-                <div className="w-full max-w-lg text-xs">
-                  <div className="break-words overflow-hidden">
-                    <span className="font-semibold">Location: </span>
-                    {/* {bus.locationText?.split(",").slice(0, 3)} */}
-                    CurrentDistance: {currentDistanceNow}
+                    {bus.locationText?.split(",").slice(0, 3)}
                   </div>
                 </div>
                 <div className='grid grid-cols-2 gap-1'>
