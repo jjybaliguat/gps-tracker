@@ -7,6 +7,7 @@ export async function GET(req: Request){
     const url = new URL(req.url)
     const params = new URLSearchParams(url.search)
     const ownerId = params.get('userId') as string
+    const limit = params.get('limit') as string
     
     if(!ownerId) {
         return NextResponse.json({message: "Missing Required Fields"}, {status: 400})
@@ -17,7 +18,16 @@ export async function GET(req: Request){
                 ownerId
             },
             include: {
-                device: true
+                device: {
+                    include: {
+                        gpsData: {
+                            orderBy: {
+                                timestamp: 'desc'
+                            },
+                            take: limit? Number(limit) : 100.
+                        }
+                    }
+                },
             }
         })
 

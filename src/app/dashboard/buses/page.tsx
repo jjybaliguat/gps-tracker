@@ -41,7 +41,7 @@ export default function MiniBusesPage() {
 
   async function GetMiniBuses(){
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mini-bus?userId=${userId}`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/mini-bus?userId=${userId}&limit=5`)
       const data = await response.json()
 
       return data

@@ -103,11 +103,12 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
       const msg = payload?.toString();
 
       devices?.forEach(async (device: Device) => {
-        // Handle passenger count topic
+        // Handle passenger count 
+        // console.log(device)
         if (topic === device.passengerCountTopic) {
           try {
             const data = JSON.parse(msg);
-            console.log(data)
+            // console.log(data)
 
             setNearbyBuses((prevBuses: any) =>
               prevBuses?.map((bus: NearbyBusesProps) =>
@@ -242,21 +243,23 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
   return (
     <>
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
 
-        <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4'>
+        <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4 p-6'>
           {nearbyBuses?.map((bus, index) => (
             <div
               key={index}
-              className="flex items-center gap-4 p-4 rounded-xl shadow-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition hover:shadow-lg"
+              className="relative flex items-center gap-4 p-4 rounded-xl shadow-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition hover:shadow-lg"
             >
-              <div className="relative h-14 w-14 shrink-0">
-                <Image
-                  src="/bus2.png"
-                  alt="bus-icon"
-                  fill
-                  className="rounded-full object-cover object-center"
-                />
+              <div className="absolute -top-[100px] -left-5">
+                <div className="relative h-14 w-14 shrink-0">
+                  <Image
+                    src="/bus2.png"
+                    alt="bus-icon"
+                    fill
+                    className="rounded-full object-cover object-center"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col text-sm text-gray-700 dark:text-gray-300 w-full">

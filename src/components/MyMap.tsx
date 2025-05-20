@@ -205,10 +205,10 @@ const Map = () => {
   return (
     <>
     <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
-      <div className='col-span-1 h-full w-full rounded-xl bg-muted/50 z-40 p-6'>
+      <div className='md:col-span-1 h-full w-full rounded-xl bg-muted/50 z-40 p-2 md:p-4 lg:p-6'>
         <NearbyBuses devices={devices} mapRef={mapRef} mapContainerRef={mapContainerRef} />
       </div>
-      <div className="col-span-2 h-[55vh] md:h-[85vh] w-full rounded-xl bg-muted/50 z-40">
+      <div className="col-span-1 md:col-span-2 h-[55vh] md:h-[85vh] w-full rounded-xl bg-muted/50 z-40">
         <div className="h-[70vh] md:h-[80vh] md:px-6 py-6 px-2">
           <h1 className="text-xl font-medium">Mini-Buses&apos; Real-Time Locations</h1>
           <div ref={mapContainerRef} className='relative h-[70vh] md:h-[80vh]'>
