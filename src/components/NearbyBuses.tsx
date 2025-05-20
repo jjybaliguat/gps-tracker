@@ -247,8 +247,8 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
 
                 if (userLocation) {
                   updated.sort((a, b) => {
-                    const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, a.lat, a.lon);
-                    const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, b.lat, b.lon);
+                    const distA = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, a.lat, a.lon) ?? Infinity;
+                    const distB = getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, b.lat, b.lon) ?? Infinity;
                     return distA - distB;
                   });
                 }
