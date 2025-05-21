@@ -36,7 +36,8 @@ export async function GET(req: Request) {
           include: {
             route: true
           }
-        }
+        },
+        assignedBus: true
       }
     });
 
@@ -53,7 +54,7 @@ export async function GET(req: Request) {
 
     const separatedGpsLogs = separateTrips(routelogs, device?.user?.route);
 
-    return NextResponse.json(separatedGpsLogs, { status: 200, headers });
+    return NextResponse.json({separatedGpsLogs, device: device}, { status: 200, headers });
   } catch (error) {
     console.error("Error fetching GPS logs:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers });

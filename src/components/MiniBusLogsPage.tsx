@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import dynamic from 'next/dynamic';
 import { GPSData } from '@prisma/client';
+import { Device } from '@/types/Device';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
   ssr: false,
@@ -30,6 +31,7 @@ export default function MiniBusLogsPage({ devId }: Props) {
   const [trips, setTrips] = useState<GPSData[][]>([]);
   const [selectedRange, setSelectedRange] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [device, setDevice] = useState<Device | null>()
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,8 +40,9 @@ export default function MiniBusLogsPage({ devId }: Props) {
       try {
         setIsLoading(true);
         setTrips([]);
-        const data = await GetBusRouteLogs(devId, selectedRange, controller.signal);
-        setTrips(data);
+        const {separatedGpsLogs, device} = await GetBusRouteLogs(devId, selectedRange, controller.signal);
+        setDevice(device)
+        setTrips(separatedGpsLogs);
       } catch (err: any) {
         if (err.name === 'AbortError') {
           console.log('Previous fetch aborted');
@@ -79,7 +82,11 @@ export default function MiniBusLogsPage({ devId }: Props) {
         <div className="text-center py-10">⏳ Fetching trip logs...</div>
       ) : trips.length > 0 ? (
         <>
-          <p>Total Trips: {trips.length}</p>
+          <div className="flex flex-col gap-2">
+            <p>{device?.name}</p>
+            <p>Plate Number: {device?.assignedBus.plateNumber}</p>
+            <p>Total Trips: {trips.length}</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-1 py-6">
             {trips.map((trip, index) => {
               if (trip.length === 0) return null;
