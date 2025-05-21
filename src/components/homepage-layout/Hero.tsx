@@ -16,7 +16,7 @@ const Hero = () => {
                     <Image src="/logo.png" alt='logo' fill style={{objectFit: "cover", objectPosition: "center"}} />
                 </div>
                 <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">MINI-BUS TRACKER</h1>
-                <p className="text-lg md:text-2xl text-gray-200 mb-6">The First Mini-Bus Tracker In Montalban Rizal</p>
+                <p className="text-lg md:text-2xl text-gray-200 mb-6">The First Mini-Bus Tracker In San Isidro, Rodriguez, Rizal</p>
                 <div className="flex flex-col md:flex-row gap-4">
                 <button onClick={()=>router.push("/auth/sign-in")} className="px-6 py-3 bg-white text-black rounded-full font-semibold hover:bg-gray-100 transition">
                     Track Now

@@ -15,6 +15,9 @@ export async function GET(req: Request){
                         assignedBus: true
                     }
                 }
+            },
+            orderBy: {
+                timestamp: 'desc' // or 'asc' for ascending order
             }
         })
 

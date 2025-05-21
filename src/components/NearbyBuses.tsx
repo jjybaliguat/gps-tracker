@@ -251,7 +251,7 @@ const NearbyBuses = ({devices, mapRef, mapContainerRef} : {devices: Device[], ma
     <>
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Nearby Mini-Buses</h1>
-        <button onClick={getUserLocation}>Enable Location</button>
+        {/* <button onClick={getUserLocation}>Enable Location</button> */}
 
         <div className='max-h-[300px] md:h-full overflow-y-auto flex flex-col gap-4 p-1 md:p-2'>
           {nearbyBuses?.map((bus, index) => (

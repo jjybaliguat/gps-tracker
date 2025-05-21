@@ -119,10 +119,10 @@ export default function MiniBusLogsPage({ devId }: Props) {
                       Actual Data: <span className="font-medium">{actualData}</span>
                     </p>
                     <p className="text-sm text-gray-600">
-                      Accuracy: <span className="font-medium">{effeciency.toFixed(0)} %</span>
+                      Accuracy: <span className="font-medium">{effeciency.toFixed(2)} %</span>
                     </p>
                     <p className="text-sm text-gray-600">
-                      Data Loss: <span className="font-medium">{100 - Number(effeciency.toFixed(0))} %</span>
+                      Data Loss: <span className="font-medium">{(100 - Number(effeciency)).toFixed(2)} %</span>
                     </p>
                   </div>
                   <RouteMap routeLogs={trip} />
